@@ -1,77 +1,103 @@
-// src/LoginForm.js
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Container } from '@mui/material';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
-const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const RegistrationForm = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+
+  const [errors, setErrors] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+
+  const validate = () => {
+    let validationErrors = {};
+    
+    if (!formData.username) {
+      validationErrors.username = 'Username is required';
+    }
+    if (!formData.email) {
+      validationErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      validationErrors.email = 'Email must be a valid email address';
+    }
+    if (!formData.password) {
+      validationErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      validationErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    return validationErrors;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!email && !password) {
-      setError('Please fill in all fields');
-      return;
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+    } else {
+      // Handle successful form submission
+      console.log('Form submitted successfully', formData);
     }
+  };
 
-    if (!email) {
-      setError('Please enter your email');
-      return;
-    }
-
-    if (!password) {
-      setError('Please enter your password');
-      return;
-    }
-
-    // Handle successful form submission
-    setError('');
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    setErrors({
+      ...errors,
+      [name]: ''
+    });
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: 8, boxShadow: 3, p: 4, borderRadius: 2 }}>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-      >
-        <Typography variant="h4" component="h1" gutterBottom>
-          Login
-        </Typography>
-        {error && (
-          <Typography color="error" variant="body2" gutterBottom>
-            {error}
-          </Typography>
-        )}
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          margin="normal"
-          variant="outlined"
-          fullWidth
-        />
-        <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          margin="normal"
-          variant="outlined"
-          fullWidth
-        />
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-          Login
-        </Button>
-      </Box>
-    </Container>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ display: 'flex', flexDirection: 'column', width: '300px', margin: 'auto' }}
+    >
+      <TextField
+        label="Username"
+        name="username"
+        value={formData.username}
+        onChange={handleChange}
+        error={!!errors.username}
+        helperText={errors.username}
+        margin="normal"
+      />
+      <TextField
+        label="Email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        error={!!errors.email}
+        helperText={errors.email}
+        margin="normal"
+      />
+      <TextField
+        label="Password"
+        name="password"
+        type="password"
+        value={formData.password}
+        onChange={handleChange}
+        error={!!errors.password}
+        helperText={errors.password}
+        margin="normal"
+        inputProps={{ 'data-testid': 'password-error' }}
+      />
+      <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+        Submit
+      </Button>
+    </Box>
   );
 };
 
-export default LoginForm;
+export default RegistrationForm;
